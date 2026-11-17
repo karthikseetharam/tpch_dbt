@@ -1,0 +1,37 @@
+name: tpch
+version: "1.0.0"
+config-version: 2
+profile: tpch
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Where the raw TPC-H tables live. Defaults to the schema the load step writes.
+  # Point at Snowflake's built-in sample data with:
+  #   --vars '{raw_database: SNOWFLAKE_SAMPLE_DATA, raw_schema: TPCH_SF1}'
+  raw_schema: "{{ env_var('SNOWFLAKE_RAW_SCHEMA', 'raw') if target.type == 'snowflake' else 'raw' }}"
+
+models:
+  tpch:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      core:
+        +schema: marts
+        +materialized: table
+      analytics:
+        +schema: analytics
+        +materialized: table
+
+data_tests:
+  tpch:
+    +severity: error

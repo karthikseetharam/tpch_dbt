@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: int_order_lines__enriched
+    description: >
+      Line items joined to orders and partsupp, with revenue, margin and delivery
+      measures. Grain: one row per order line (order_line_key).
+    columns:
+      - name: order_line_key
+        description: order_key * 10 + line_number (line_number is 1..7 in TPC-H).
+        data_tests: [unique, not_null]
+
+  - name: int_geography
+    columns:
+      - name: nation_key
+        data_tests: [unique, not_null]

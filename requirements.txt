@@ -1,0 +1,16 @@
+# Core engine + data generation (DuckDB's tpch extension provides dbgen)
+duckdb>=1.4,<3
+
+# Transformation layer
+dbt-core>=1.10.5,<2
+dbt-duckdb>=1.10,<2
+dbt-snowflake>=1.10,<2
+
+# Ingestion into Snowflake (PUT + COPY INTO)
+snowflake-connector-python>=3.12,<5
+# snowflake-connector's fetch_pandas_all() requires pyarrow<24 (it warns on newer versions)
+pyarrow>=14,<24
+
+# Dashboard
+streamlit>=1.40,<2
+pandas>=2.2,<4

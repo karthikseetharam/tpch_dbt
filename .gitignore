@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/
+tpch_dbt/target/
+tpch_dbt/logs/
+tpch_dbt/dbt_packages/
+tpch_dbt/.user.yml
+logs/
+*.p8

@@ -1,0 +1,138 @@
+version: 2
+
+models:
+  - name: stg_tpch__region
+    description: One row per region (5 rows at any scale factor).
+    columns:
+      - name: region_key
+        data_tests: [unique, not_null]
+      - name: region_name
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["AFRICA", "AMERICA", "ASIA", "EUROPE", "MIDDLE EAST"]
+
+  - name: stg_tpch__nation
+    description: One row per nation (25 rows at any scale factor).
+    columns:
+      - name: nation_key
+        data_tests: [unique, not_null]
+      - name: region_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__region')
+                field: region_key
+
+  - name: stg_tpch__supplier
+    columns:
+      - name: supplier_key
+        data_tests: [unique, not_null]
+      - name: nation_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__nation')
+                field: nation_key
+
+  - name: stg_tpch__customer
+    columns:
+      - name: customer_key
+        data_tests: [unique, not_null]
+      - name: nation_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__nation')
+                field: nation_key
+      - name: market_segment
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["AUTOMOBILE", "BUILDING", "FURNITURE", "HOUSEHOLD", "MACHINERY"]
+
+  - name: stg_tpch__part
+    columns:
+      - name: part_key
+        data_tests: [unique, not_null]
+      - name: part_size
+        data_tests:
+          - column_between:
+              arguments: {min_value: 1, max_value: 50}
+
+  - name: stg_tpch__partsupp
+    description: One row per (part, supplier) pair.
+    data_tests:
+      - min_row_count:
+          arguments: {min_rows: 1}
+    columns:
+      - name: part_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__part')
+                field: part_key
+      - name: supplier_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__supplier')
+                field: supplier_key
+
+  - name: stg_tpch__orders
+    columns:
+      - name: order_key
+        data_tests: [unique, not_null]
+      - name: customer_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__customer')
+                field: customer_key
+      - name: order_status_code
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["F", "O", "P"]
+      - name: order_priority
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["1-URGENT", "2-HIGH", "3-MEDIUM", "4-NOT SPECIFIED", "5-LOW"]
+
+  - name: stg_tpch__lineitem
+    description: One row per order line; grain is (order_key, line_number).
+    columns:
+      - name: order_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tpch__orders')
+                field: order_key
+      - name: line_number
+        data_tests:
+          - column_between:
+              arguments: {min_value: 1, max_value: 7}
+      - name: discount_rate
+        data_tests:
+          - column_between:
+              arguments: {min_value: 0, max_value: 0.10}
+      - name: tax_rate
+        data_tests:
+          - column_between:
+              arguments: {min_value: 0, max_value: 0.08}
+      - name: return_flag
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["A", "N", "R"]
+      - name: ship_mode
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["AIR", "FOB", "MAIL", "RAIL", "REG AIR", "SHIP", "TRUCK"]

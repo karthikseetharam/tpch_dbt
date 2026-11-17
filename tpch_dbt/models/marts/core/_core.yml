@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: Customer dimension with nation and region attributes.
+    columns:
+      - name: customer_key
+        data_tests: [unique, not_null]
+      - name: region_name
+        data_tests: [not_null]
+
+  - name: dim_supplier
+    description: Supplier dimension with nation and region attributes.
+    columns:
+      - name: supplier_key
+        data_tests: [unique, not_null]
+
+  - name: dim_part
+    description: Part dimension with supply statistics from partsupp.
+    columns:
+      - name: part_key
+        data_tests: [unique, not_null]
+      - name: supplier_count
+        description: TPC-H assigns exactly 4 suppliers per part.
+        data_tests:
+          - column_between:
+              arguments: {min_value: 4, max_value: 4}
+
+  - name: dim_date
+    description: Calendar dimension, 1992-01-01 to 1998-12-31.
+    columns:
+      - name: date_day
+        data_tests: [unique, not_null]
+      - name: date_key
+        data_tests: [unique, not_null]
+
+  - name: fct_order_lines
+    description: >
+      Central fact table (star schema). Grain: one row per order line.
+      Incremental model keyed on order_line_key.
+    columns:
+      - name: order_line_key
+        data_tests: [unique, not_null]
+      - name: customer_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_customer'), field: customer_key}
+      - name: part_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_part'), field: part_key}
+      - name: supplier_key
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_supplier'), field: supplier_key}
+      - name: order_date
+        data_tests:
+          - relationships:
+              arguments: {to: ref('dim_date'), field: date_day}
+      - name: days_to_ship
+        description: TPC-H ships 1..121 days after the order date.
+        data_tests:
+          - column_between:
+              arguments: {min_value: 1, max_value: 121}
+      - name: net_revenue
+        data_tests:
+          - column_between:
+              arguments: {min_value: 0, max_value: 1000000}
+
+  - name: fct_orders
+    description: "Order-level fact aggregated from fct_order_lines. Grain: one row per order."
+    columns:
+      - name: order_key
+        data_tests: [unique, not_null]
+      - name: line_count
+        data_tests:
+          - column_between:
+              arguments: {min_value: 1, max_value: 7}

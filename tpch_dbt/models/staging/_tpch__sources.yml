@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: tpch
+    description: Raw TPC-H tables as landed by the ingestion step (or Snowflake's sample share).
+    database: "{{ var('raw_database', target.database) }}"
+    schema: "{{ var('raw_schema') }}"
+    tables:
+      - name: region
+      - name: nation
+      - name: supplier
+      - name: customer
+      - name: part
+      - name: partsupp
+      - name: orders
+      - name: lineitem

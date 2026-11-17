@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: tpch_q01_pricing_summary
+    description: TPC-H Q1 on the star schema. pipeline.py verify reconciles it with DuckDB's reference query.
+    data_tests:
+      - min_row_count:
+          arguments: {min_rows: 4}
+  - name: tpch_q03_shipping_priority
+    description: TPC-H Q3 on the star schema (top 10).
+  - name: tpch_q05_local_supplier_volume
+    description: TPC-H Q5 on the star schema.
+    data_tests:
+      - min_row_count:
+          arguments: {min_rows: 1}
+  - name: tpch_q06_forecast_revenue_change
+    description: TPC-H Q6 on the star schema.
+  - name: tpch_q12_shipping_modes
+    description: TPC-H Q12 on the star schema.
+  - name: agg_revenue_monthly
+    description: Monthly revenue, margin and lateness by region and segment (dashboard source).
+    columns:
+      - name: month_start
+        data_tests: [not_null]
